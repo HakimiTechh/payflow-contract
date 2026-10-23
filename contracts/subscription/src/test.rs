@@ -2,7 +2,6 @@
 
 use super::*;
 use payflow_plan_registry::{PlanRegistry, PlanRegistryClient as RegistryClient};
-use soroban_sdk::vec;
 use payflow_test_token::{TestToken, TestTokenClient};
 use payflow_vault::{Vault, VaultClient as RealVaultClient};
 use soroban_sdk::{
