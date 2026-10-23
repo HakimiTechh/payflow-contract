@@ -47,4 +47,8 @@ pub enum Error {
     /// upgrade: the mandate's merchant decides who is paid and who may
     /// refund.
     DifferentMerchant = 17,
+    /// A batch subscription was given more plans than `MAX_BATCH_PLANS`.
+    BatchTooLarge = 18,
+    /// A batch subscription was given no plans.
+    EmptyBatch = 19,
 }
