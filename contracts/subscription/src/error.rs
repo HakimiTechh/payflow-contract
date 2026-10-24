@@ -47,8 +47,25 @@ pub enum Error {
     /// upgrade: the mandate's merchant decides who is paid and who may
     /// refund.
     DifferentMerchant = 17,
+    /// The estimated end timestamp for a mandate's remaining schedule overflows `u64`.
+    ScheduleOverflow = 18,
+    /// The seat count is zero, or exceeds the plan's `max_seats`.
+    InvalidSeats = 19,
+    /// The seat count was supplied for a plan that is not seat-based, or was
+    /// omitted for one that is.
+    SeatsNotApplicable = 20,
+    /// `price * seats` overflows `i128`.
+    SeatsOverflow = 21,
+    /// A total-spend cap that is negative.
+    InvalidMaxTotal = 22,
+    /// The pause has lasted longer than the maximum pause length frozen into
+    /// the mandate, so it can be expired.
+    PauseNotExpired = 23,
+    /// The pause has exceeded its maximum length and must be expired with
+    /// `expire_pause`, not resumed or extended.
+    PauseExpired = 24,
     /// A batch subscription was given more plans than `MAX_BATCH_PLANS`.
-    BatchTooLarge = 18,
+    BatchTooLarge = 25,
     /// A batch subscription was given no plans.
-    EmptyBatch = 19,
+    EmptyBatch = 26,
 }
