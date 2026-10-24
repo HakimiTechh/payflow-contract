@@ -26,6 +26,8 @@ pub struct Subscribed {
     /// 0 means open-ended. Carried in the event so indexers do not have to
     /// make a follow-up contract read to learn a mandate's spend cap.
     pub max_charges: u32,
+    /// 0 means open-ended.
+    pub max_total: i128,
     /// The fee rate frozen into this mandate, for the same reason.
     pub fee_bps: u32,
     /// The keeper tip frozen into this mandate, for the same reason.
@@ -120,6 +122,23 @@ pub struct PauseChanged {
     pub subscriber: Address,
     /// Whether the mandate is now paused (`true`) or resumed (`false`).
     pub paused: bool,
+}
+
+/// Emitted when a mandate's pause exceeds its merchant-set maximum and the
+/// mandate is cancelled by `expire_pause`.
+#[contractevent]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct PauseExpired {
+    /// ID of the expired mandate.
+    #[topic]
+    pub mandate_id: u64,
+    /// Account of the subscriber.
+    #[topic]
+    pub subscriber: Address,
+    /// Maximum pause length in seconds that was exceeded.
+    pub max_pause_secs: u64,
+    /// Timestamp at which the pause began.
+    pub paused_at: u64,
 }
 
 /// Emitted when a mandate reaches its maximum allowed charges and completes.
@@ -219,4 +238,23 @@ pub struct MandateUpdated {
     pub mandate_id: u64,
     /// Complete snapshot of the mandate after update.
     pub mandate: crate::types::Mandate,
+}
+
+/// Emitted when a subscriber changes the seat count on their mandate.
+///
+/// The new seat count takes effect from the next charge; no money moves at the
+/// time this event is emitted.
+#[contractevent]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct SeatsChanged {
+    /// ID of the mandate whose seat count changed.
+    #[topic]
+    pub mandate_id: u64,
+    /// Subscriber who made the change.
+    #[topic]
+    pub subscriber: Address,
+    /// Seat count before the change.
+    pub old_seats: u32,
+    /// Seat count after the change, effective from the next charge.
+    pub new_seats: u32,
 }
