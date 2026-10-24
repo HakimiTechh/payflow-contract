@@ -93,6 +93,12 @@ pub struct Mandate {
     pub max_total: i128,
     /// Total debited by settled charges so far, the figure `max_total` caps.
     pub total_spent: i128,
+
+    /// Maximum continuous pause length in seconds, frozen at subscribe time
+    /// from the plan's `max_pause_secs`. 0 means unlimited. Mandates opened
+    /// before this field existed decode to 0 and are therefore unlimited, so
+    /// they are unaffected.
+    pub max_pause_secs: u64,
     /// Current lifecycle state of the mandate.
     pub status: MandateStatus,
 }

@@ -186,6 +186,8 @@ mod contract {
                 seats: 1,
                 max_total,
                 total_spent: 0,
+
+                max_pause_secs: 0,
                 status: MandateStatus::Active,
             };
 

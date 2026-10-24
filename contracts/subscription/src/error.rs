@@ -58,4 +58,10 @@ pub enum Error {
     SeatsOverflow = 21,
     /// A total-spend cap that is negative.
     InvalidMaxTotal = 22,
+    /// The pause has lasted longer than the maximum pause length frozen into
+    /// the mandate, so it can be expired.
+    PauseNotExpired = 23,
+    /// The pause has exceeded its maximum length and must be expired with
+    /// `expire_pause`, not resumed or extended.
+    PauseExpired = 24,
 }

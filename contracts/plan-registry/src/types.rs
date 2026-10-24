@@ -8,6 +8,11 @@ use soroban_sdk::{contracttype, Address, String};
 /// Seat-based plans: `per_seat` marks a plan whose price is multiplied by the
 /// number of seats chosen at subscribe time, bounded by `max_seats`. Non-seat
 /// plans keep `per_seat == false` and `max_seats == 0`.
+///
+/// Note: the `max_pause_secs` field (0 = unlimited) is part of `Plan` in
+/// `payflow-shared`; this crate re-exports that definition, so no local
+/// change to the struct is required here. The subscription contract's mirror
+/// of `Plan` must be updated in lockstep with `payflow-shared`.
 pub use payflow_shared::Plan;
 
 /// A merchant's self-declared profile, shown to subscribers alongside the
