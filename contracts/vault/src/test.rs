@@ -859,3 +859,44 @@ fn update_admin_requires_the_current_admins_auth() {
     assert!(h.vault.try_update_admin(&next).is_err());
     assert_eq!(h.vault.admin(), before);
 }
+
+#[test]
+fn deposit_requires_the_user_auth() {
+    let h = setup();
+    let user = funded_user(&h, 10_000);
+    // Drop the blanket mock: the depositor must sign for its own funds.
+    h.env.set_auths(&[]);
+    assert!(h.vault.try_deposit(&user, &h.token, &1_000).is_err());
+    assert_eq!(h.vault.balance(&user, &h.token), 0);
+}
+
+#[test]
+fn withdraw_requires_the_user_auth() {
+    let h = setup();
+    let user = funded_user(&h, 10_000);
+    h.vault.deposit(&user, &h.token, &1_000);
+    h.env.set_auths(&[]);
+    assert!(h.vault.try_withdraw(&user, &h.token, &1_000).is_err());
+    assert_eq!(h.vault.balance(&user, &h.token), 1_000);
+}
+
+#[test]
+fn debit_requires_the_subscription_auth() {
+    let h = setup();
+    let user = funded_user(&h, 10_000);
+    let merchant = Address::generate(&h.env);
+    h.vault.deposit(&user, &h.token, &1_000);
+    // Only the configured subscription contract may debit a balance.
+    h.env.set_auths(&[]);
+    assert!(h.vault.try_debit(&user, &h.token, &merchant, &500).is_err());
+    assert_eq!(h.vault.balance(&user, &h.token), 1_000);
+}
+
+#[test]
+fn set_subscription_requires_admin_auth() {
+    let h = setup();
+    let other = Address::generate(&h.env);
+    h.env.set_auths(&[]);
+    assert!(h.vault.try_set_subscription(&other).is_err());
+    assert_eq!(h.vault.subscription(), h.subscription);
+}

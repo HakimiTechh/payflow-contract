@@ -1343,3 +1343,42 @@ fn update_admin_requires_the_current_admins_auth() {
     assert!(client.try_update_admin(&next).is_err());
     assert_eq!(client.admin(), admin);
 }
+
+#[test]
+fn create_plan_requires_the_merchants_auth() {
+    let (env, client, _) = setup();
+    let merchant = Address::generate(&env);
+    let token = Address::generate(&env);
+    // Drop every mocked authorization: a plan is published only by its merchant.
+    env.set_auths(&[]);
+    assert!(client
+        .try_create_plan(
+            &merchant,
+            &token,
+            &1_000,
+            &2_592_000,
+            &String::from_str(&env, "Pro Monthly"),
+            &String::from_str(&env, ""),
+            &0,
+        )
+        .is_err());
+}
+
+#[test]
+fn set_plan_active_requires_the_merchants_auth() {
+    let (env, client, _) = setup();
+    let merchant = Address::generate(&env);
+    let token = Address::generate(&env);
+    let id = client.create_plan(
+        &merchant,
+        &token,
+        &1_000,
+        &2_592_000,
+        &String::from_str(&env, "Pro Monthly"),
+        &String::from_str(&env, ""),
+        &0,
+    );
+    env.set_auths(&[]);
+    assert!(client.try_set_plan_active(&merchant, &id, &false).is_err());
+    assert!(client.get_plan(&id).active);
+}

@@ -2001,6 +2001,56 @@ fn fee_to_contract_address_receives_the_fee() {
     assert_eq!(vault.balance(&user, &token), 50_000 - PRICE);
 }
 
+// ---------------------------------------------------------------------------
+// Auth coverage: negative auth tests for every mutating function (#99)
+// ---------------------------------------------------------------------------
+
+#[test]
+fn cancel_requires_subscriber_auth() {
+    let w = world();
+    let plan_id = w.plan();
+    let user = w.subscriber(100_000);
+    let id = w.sub.subscribe(&user, &plan_id, &0, &0);
+
+    let wrong_signer = Address::generate(&w.env);
+    w.env.mock_auths(&[MockAuth {
+        address: &wrong_signer,
+        invoke: &MockAuthInvoke {
+            contract: &w.sub.address,
+            fn_name: "cancel",
+            args: (&user, &id).into_val(&w.env),
+            sub_invokes: &[],
+        },
+    }]);
+
+    assert!(w.sub.try_cancel(&user, &id).is_err());
+    // The mandate must remain active.
+    assert_eq!(w.sub.get_mandate(&id).status, MandateStatus::Active);
+}
+
+#[test]
+fn set_paused_requires_subscriber_auth() {
+    let w = world();
+    let plan_id = w.plan();
+    let user = w.subscriber(100_000);
+    let id = w.sub.subscribe(&user, &plan_id, &0, &0);
+
+    let wrong_signer = Address::generate(&w.env);
+    w.env.mock_auths(&[MockAuth {
+        address: &wrong_signer,
+        invoke: &MockAuthInvoke {
+            contract: &w.sub.address,
+            fn_name: "set_paused",
+            args: (&user, &id, &true).into_val(&w.env),
+            sub_invokes: &[],
+        },
+    }]);
+
+    assert!(w.sub.try_set_paused(&user, &id, &true).is_err());
+    // The mandate must remain active.
+    assert_eq!(w.sub.get_mandate(&id).status, MandateStatus::Active);
+}
+
 struct FailingTokenWorld<'a> {
     env: Env,
     sub: SubscriptionClient<'a>,
